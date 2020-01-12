@@ -4,11 +4,21 @@ import com.badlogic.gdx.graphics.Color;
 
 public class GameUnit {
 
+    public static final int MAX_AGE_FOR_SICK = 5;
+
     private boolean isAlive = true;
     private Color color;
+    private int age = 0;
+    private boolean isSick = false;
 
     public GameUnit(Color color){
         this.color = color;
+    }
+
+    public GameUnit(Color color, boolean isSick, int age){
+        this.color = color;
+        this.isSick = isSick;
+        this.age = age;
     }
 
     public GameUnit(int colorR, int colorG, int colorB){
@@ -36,6 +46,13 @@ public class GameUnit {
     }
 
     public GameUnit copy() {
-        return new GameUnit(this.color);
+        return new GameUnit(this.color, this.isSick, this.age);
+    }
+
+    public void addGeneration() {
+        this.age = this.age+1;
+        if(isSick && age > MAX_AGE_FOR_SICK){
+            kill();
+        }
     }
 }

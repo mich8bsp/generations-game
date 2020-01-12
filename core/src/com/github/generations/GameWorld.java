@@ -21,6 +21,7 @@ public class GameWorld extends Actor {
     private ShapeRenderer shapeDrawer = new ShapeRenderer();
     private static final float GENERATION_LIFESPAN = 1;
     private static final int CELL_SIZE = 50;
+    private static final double SICKNESS_SDV_LIMIT = 0.1;
     private boolean running = false;
 
 
@@ -148,6 +149,7 @@ public class GameWorld extends Actor {
                         newGeneration[i][j] = reproduceFromNeighbors(neighbors);
                     }else{
                         newGeneration[i][j] = units[i][j];
+                        newGeneration[i][j].addGeneration();
                     }
                 }
             }
@@ -166,7 +168,24 @@ public class GameWorld extends Actor {
             sumG += unit.getColor().g;
             sumB += unit.getColor().b;
         }
-        return new GameUnit(new Color(sumR/n, sumG/n, sumB/n, 1f));
+        float avgR = sumR/n;
+        float avgG = sumG/n;
+        float avgB = sumB/n;
+        boolean isSick = determineGeneticSickness(neighbors, avgR, avgG, avgB);
+        return new GameUnit(new Color(avgR, avgG, avgB, 1f), isSick, 0);
+    }
+
+    private boolean determineGeneticSickness(List<GameUnit> neighbors,
+                                             float avgR, float avgG, float avgB){
+        double variance = 0;
+        int n = neighbors.size();
+        for(GameUnit unit : neighbors){
+            variance += Math.pow(unit.getColor().r - avgR, 2)/n;
+            variance += Math.pow(unit.getColor().g - avgG, 2)/n;
+            variance += Math.pow(unit.getColor().b - avgB, 2)/n;
+        }
+        double sdv = Math.sqrt(variance);
+        return sdv < SICKNESS_SDV_LIMIT;
     }
 
     private void updateCellTypes(){
