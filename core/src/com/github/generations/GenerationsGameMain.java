@@ -1,17 +1,15 @@
 package com.github.generations;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Gdx;
 
 public class GenerationsGameMain extends GameBeta {
-	SpriteBatch batch;
 	GameLevel[] levels = new GameLevel[1];
 
 
 	@Override
 	public void initialize() {
-		levels[0] = new GameLevel("level1.txt");
-		mainStage.addActor(levels[0].getWorld());
-		batch = new SpriteBatch();
+		levels[0] = new GameLevel("level2.txt", mainStage);
+		Gdx.input.setInputProcessor(mainStage);
 	}
 
 

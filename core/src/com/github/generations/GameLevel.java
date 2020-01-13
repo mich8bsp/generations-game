@@ -2,6 +2,12 @@ package com.github.generations;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 import java.io.BufferedReader;
 
@@ -9,8 +15,43 @@ public class GameLevel {
 
     private GameWorld world;
 
-    public GameLevel(String layoutPath){
+    private Skin uiSkin;
+    private Button runButton;
+    private Scoreboard scoreboard;
+
+
+    public GameLevel(String layoutPath, Stage mainStage){
         this.world = createWorldFromLayout(layoutPath);
+        uiSkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
+        runButton = createRunButton();
+        this.scoreboard = new Scoreboard(uiSkin);
+        this.scoreboard.setScoreSupplier(world);
+        mainStage.addActor(runButton);
+        mainStage.addActor(world);
+        mainStage.addActor(scoreboard);
+    }
+
+    private Button createRunButton(){
+        final TextButton button2 = new TextButton("Start", uiSkin, "toggle");
+        button2.getLabel().setFontScale(2);
+        button2.setSize(150, 100);
+        button2.setPosition(100, 1000);
+        button2.addListener(new InputListener(){
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+            }
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                world.toggleRunning();
+                if(button2.getLabel().getText().toString().equals("Pause")){
+                    button2.getLabel().setText("Resume");
+                }else{
+                    button2.getLabel().setText("Pause");
+                }
+                return true;
+            }
+        });
+        return button2;
     }
 
     private GameWorld createWorldFromLayout(String layoutPath) {

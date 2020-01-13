@@ -3,6 +3,7 @@ package com.github.generations;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -10,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameWorld extends Actor {
+public class GameWorld extends Actor implements IScoreSupplier {
 
     private int currentGeneration = 1;
     private float timeInCurrentGen = 0f;
@@ -18,14 +19,15 @@ public class GameWorld extends Actor {
     private final int rows;
     private GameUnit[][] units;
     private ECellType[][] cellTypeMapping;
-    private ShapeRenderer shapeDrawer = new ShapeRenderer();
-    private static final float GENERATION_LIFESPAN = 1;
-    private static final int CELL_SIZE = 50;
+    private static final float GENERATION_LIFESPAN = 0.1f;
+    private static final int CELL_SIZE = 30;
     private static final double SICKNESS_SDV_LIMIT = 0.1;
     private boolean running = false;
+    private Texture cellTexture;
 
 
     public GameWorld(int rows, int cols){
+        this.cellTexture = new Texture(Gdx.files.internal("cell.png"));
         this.rows = rows;
         this.cols = cols;
         units = new GameUnit[rows][cols];
@@ -76,39 +78,39 @@ public class GameWorld extends Actor {
     @Override
     public void draw (Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        Color batchColor = getColor();
-        batch.setColor(batchColor.r, batchColor.g, batchColor.b, batchColor.a);
         int rows = getRows();
         int cols = getCols();
         for(int i=0; i< rows; i++){
             for(int j=0; j< cols; j++){
                 ECellType cellType = getCellType(i,j);
                 if(cellType == ECellType.EMPTY){
+                    drawCell(batch, i, j, Color.GRAY);
                     continue;
                 }
                 if(cellType == ECellType.BLOCKER){
-                    drawCell(i, j, Color.BLACK);
+                    drawCell(batch, i, j, Color.DARK_GRAY);
                 }else if(cellType == ECellType.GAME_UNIT){
                     GameUnit unit = getGameUnit(i, j);
                     Color c = unit.getColor();
                     if(unit.isAlive()) {
-                        drawCell(i, j, c);
+                        drawCell(batch, i, j, c);
                     }
                 }
             }
         }
     }
 
-    private void drawCell(int i, int j, Color c){
-        shapeDrawer.begin(ShapeRenderer.ShapeType.Line);
-        shapeDrawer.setColor(Color.WHITE);
-        shapeDrawer.rect(i*CELL_SIZE, j*CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        shapeDrawer.end();
-        shapeDrawer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeDrawer.setColor(c);
-        shapeDrawer.rect(i*CELL_SIZE, j*CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        shapeDrawer.end();
+    private void drawCell(Batch batch, int i, int j, Color c){
+        Color prevColor = batch.getColor();
+        batch.setColor(c);
+        batch.draw(cellTexture, j*CELL_SIZE, i*CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        batch.setColor(prevColor);
     }
+
+    public void toggleRunning(){
+        this.running = !this.running;
+    }
+
 
     @Override
     public void act(float dt){

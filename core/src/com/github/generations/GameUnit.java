@@ -52,7 +52,7 @@ public class GameUnit {
     public void addGeneration() {
         this.age = this.age+1;
         if(isSick && age > MAX_AGE_FOR_SICK){
-            kill();
+            //kill();
         }
     }
 }
