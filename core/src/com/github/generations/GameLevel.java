@@ -2,40 +2,53 @@ package com.github.generations;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import java.io.BufferedReader;
 
 public class GameLevel {
-
     private GameWorld world;
 
     private Skin uiSkin;
     private Button runButton;
+    private Button backButton;
     private Scoreboard scoreboard;
+    private ILevelSelector levelSelector;
 
-
-    public GameLevel(String layoutPath, Stage mainStage){
+    public GameLevel(String layoutPath){
         this.world = createWorldFromLayout(layoutPath);
-        uiSkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
-        runButton = createRunButton();
-        this.scoreboard = new Scoreboard(uiSkin);
+        this.uiSkin = GameSkin.getSkin();
+        this.runButton = createRunButton();
+        this.backButton = createBackButton();
+        this.scoreboard = new Scoreboard();
         this.scoreboard.setScoreSupplier(world);
-        mainStage.addActor(runButton);
-        mainStage.addActor(world);
-        mainStage.addActor(scoreboard);
+    }
+
+    public void addToStage(Stage stage){
+        stage.addActor(runButton);
+        stage.addActor(world);
+        stage.addActor(scoreboard);
+        stage.addActor(backButton);
+    }
+
+    public void setBackCallback(ILevelSelector levelSelector){
+        this.levelSelector = levelSelector;
     }
 
     private Button createRunButton(){
-        final TextButton button2 = new TextButton("Start", uiSkin, "toggle");
+        final TextButton button2 = new TextButton("Start", uiSkin, "default");
         button2.getLabel().setFontScale(2);
         button2.setSize(150, 100);
-        button2.setPosition(100, 1000);
+        button2.setPosition(100, 800);
         button2.addListener(new InputListener(){
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
@@ -48,6 +61,26 @@ public class GameLevel {
                 }else{
                     button2.getLabel().setText("Pause");
                 }
+                return true;
+            }
+        });
+        return button2;
+    }
+
+    private Button createBackButton(){
+        Texture backBtnTexture = new Texture(Gdx.files.internal("back.png"));
+        TextureRegion region = new TextureRegion(backBtnTexture);
+        TextureRegionDrawable drwbl = new TextureRegionDrawable(region);
+        final ImageButton button2 = new ImageButton(drwbl, drwbl, drwbl);
+        button2.setSize(150, 100);
+        button2.setPosition(100, 950);
+        button2.addListener(new InputListener(){
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+            }
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                levelSelector.onLevelQuit();
                 return true;
             }
         });
@@ -91,4 +124,5 @@ public class GameLevel {
     public int getScore(){
         return world.getScore();
     }
+
 }
