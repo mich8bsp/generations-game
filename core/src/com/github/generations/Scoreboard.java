@@ -9,6 +9,15 @@ public class Scoreboard extends Actor {
     private IScoreSupplier scoreSupplier;
 
     private String scoreText = "Score: 0";
+    private Label scoreLabel;
+
+    public Scoreboard(){
+        scoreLabel = new Label(scoreText, new Label.LabelStyle(GameSkin.getFont(80), Color.TEAL));
+        scoreLabel.setPosition(300, 800);
+        scoreLabel.setWidth(500);
+        scoreLabel.setHeight(100);
+        scoreLabel.setWrap(false);
+    }
 
     public void setScoreSupplier(IScoreSupplier scoreSupplier) {
         this.scoreSupplier = scoreSupplier;
@@ -17,13 +26,8 @@ public class Scoreboard extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-
-        Label label = new Label(scoreText, new Label.LabelStyle(GameSkin.getFont(80), Color.TEAL));
-        label.setPosition(300, 800);
-        label.setWidth(500);
-        label.setHeight(100);
-        label.setWrap(false);
-        label.draw(batch, parentAlpha);
+        scoreLabel.setText(scoreText);
+        scoreLabel.draw(batch, parentAlpha);
     }
 
     @Override
