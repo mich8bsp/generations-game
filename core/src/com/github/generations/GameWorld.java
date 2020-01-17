@@ -18,11 +18,13 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
     private final int rows;
     private GameUnit[][] units;
     private ECellType[][] cellTypeMapping;
-    private static final float GENERATION_LIFESPAN = 0.1f;
+    private static final float GENERATION_LIFESPAN = 0.01f;
     private static final int CELL_SIZE = 30;
     private static final double SICKNESS_SDV_LIMIT = 0.1;
     private boolean running = false;
     private Texture cellTexture;
+    private int totalScore = 0;
+    public static final int LAST_GENERATION = 1000;
 
 
     public GameWorld(int rows, int cols){
@@ -62,7 +64,10 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
         return units[row][col];
     }
 
-    public int getScore() {
+    public int getScore(){
+        return (currentGeneration > 0) ? totalScore / currentGeneration : 0;
+    }
+    public int getCurrentGenerationScore() {
         int score = 0;
         for(int i=0;i<rows;i++){
             for(int j=0;j<cols;j++){
@@ -122,7 +127,10 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
         if(Gdx.input.isKeyPressed(Input.Keys.ENTER)){
             this.running = true;
         }
-        if(running) {
+        if(currentGeneration>LAST_GENERATION){
+            currentGeneration = LAST_GENERATION;
+        }
+        if(running && currentGeneration<LAST_GENERATION) {
             float timeSinceCurrGen = this.timeInCurrentGen + dt;
             int newGeneration = this.currentGeneration + (int) (timeSinceCurrGen / GENERATION_LIFESPAN);
             this.timeInCurrentGen = timeSinceCurrGen % GENERATION_LIFESPAN;
@@ -130,6 +138,7 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
             if (newGeneration > currentGeneration) {
                 for (int i = 0; i < (newGeneration - currentGeneration); i++) {
                     advanceGeneration();
+                    totalScore += getCurrentGenerationScore();
                 }
             }
             this.currentGeneration = newGeneration;

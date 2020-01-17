@@ -48,6 +48,6 @@ public class InfoSection extends Actor {
     public void act(float delta) {
         super.act(delta);
         this.scoreText = "Score: " + infoSupplier.getScore();
-        this.generationText = "Generation: " + infoSupplier.getGeneration();
+        this.generationText = "Generation: " + infoSupplier.getGeneration() + "/" + GameWorld.LAST_GENERATION;
     }
 }
