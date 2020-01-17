@@ -16,27 +16,32 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import java.io.BufferedReader;
 
 public class GameLevel {
+    private final int levelNum;
     private GameWorld world;
 
     private Skin uiSkin;
     private Button runButton;
     private Button backButton;
-    private Scoreboard scoreboard;
+    private Button reloadButton;
+    private InfoSection infoSection;
     private ILevelSelector levelSelector;
 
-    public GameLevel(String layoutPath){
-        this.world = createWorldFromLayout(layoutPath);
+    public GameLevel(int levelNum){
+        this.levelNum = levelNum;
+        this.world = createWorldFromLayout("level" + levelNum + ".txt");
         this.uiSkin = GameSkin.getSkin();
         this.runButton = createRunButton();
+        this.reloadButton = createReloadButton();
         this.backButton = createBackButton();
-        this.scoreboard = new Scoreboard();
-        this.scoreboard.setScoreSupplier(world);
+        this.infoSection = new InfoSection();
+        this.infoSection.setGameInfoSupplier(world);
     }
 
     public void addToStage(Stage stage){
         stage.addActor(runButton);
+        stage.addActor(reloadButton);
         stage.addActor(world);
-        stage.addActor(scoreboard);
+        stage.addActor(infoSection);
         stage.addActor(backButton);
     }
 
@@ -48,7 +53,7 @@ public class GameLevel {
         final TextButton button2 = new TextButton("Start", uiSkin, "default");
         button2.getLabel().setFontScale(2);
         button2.setSize(150, 100);
-        button2.setPosition(100, 800);
+        button2.setPosition(400, Gdx.graphics.getHeight()-150);
         button2.addListener(new InputListener(){
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
@@ -68,19 +73,43 @@ public class GameLevel {
     }
 
     private Button createBackButton(){
-        Texture backBtnTexture = new Texture(Gdx.files.internal("back.png"));
-        TextureRegion region = new TextureRegion(backBtnTexture);
-        TextureRegionDrawable drwbl = new TextureRegionDrawable(region);
+        final Texture backBtnTexture = new Texture(Gdx.files.internal("back.png"));
+        final TextureRegion region = new TextureRegion(backBtnTexture);
+        final TextureRegionDrawable drwbl = new TextureRegionDrawable(region);
         final ImageButton button2 = new ImageButton(drwbl, drwbl, drwbl);
         button2.setSize(150, 100);
-        button2.setPosition(100, 950);
+        button2.setPosition(100, Gdx.graphics.getHeight()-150);
         button2.addListener(new InputListener(){
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+
             }
+
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 levelSelector.onLevelQuit();
+                return true;
+            }
+        });
+        return button2;
+    }
+
+    private Button createReloadButton(){
+        final Texture reloadBtn = new Texture(Gdx.files.internal("reload-btn.png"));
+        final TextureRegion region = new TextureRegion(reloadBtn);
+        final TextureRegionDrawable drwbl = new TextureRegionDrawable(region);
+        final ImageButton button2 = new ImageButton(drwbl, drwbl, drwbl);
+        button2.setSize(150, 100);
+        button2.setPosition(250, Gdx.graphics.getHeight()-150);
+        button2.addListener(new InputListener(){
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+
+            }
+
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                levelSelector.onLevelSelected(levelNum);
                 return true;
             }
         });

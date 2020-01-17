@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameWorld extends Actor implements IScoreSupplier {
+public class GameWorld extends Actor implements IGameInfoSupplier {
 
     private int currentGeneration = 1;
     private float timeInCurrentGen = 0f;
@@ -72,6 +72,11 @@ public class GameWorld extends Actor implements IScoreSupplier {
             }
         }
         return score;
+    }
+
+    @Override
+    public int getGeneration() {
+        return currentGeneration;
     }
 
     @Override

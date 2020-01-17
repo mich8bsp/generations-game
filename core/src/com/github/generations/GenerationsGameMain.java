@@ -17,12 +17,7 @@ public class GenerationsGameMain extends GameBeta implements ILevelSelector {
 		if(DEBUG_MODE) {
 			fps = new FrameRate();
 		}
-		levels[0] = new GameLevel("level1.txt");
-		levels[1] = new GameLevel("level2.txt");
 		this.levelSelector = new LevelSelector(this, levels.length);
-		for(GameLevel level : levels){
-			level.setBackCallback(this);
-		}
 		this.levelSelector.addToStage(mainStage);
 	}
 
@@ -45,6 +40,8 @@ public class GenerationsGameMain extends GameBeta implements ILevelSelector {
 	@Override
 	public void onLevelSelected(int levelNum) {
 		clear();
+		levels[levelNum-1] = new GameLevel(levelNum);
+		levels[levelNum-1].setBackCallback(this);
 		levels[levelNum-1].addToStage(mainStage);
 	}
 
