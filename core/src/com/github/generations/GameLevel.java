@@ -13,10 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-import java.io.BufferedReader;
-
 public class GameLevel {
     private final int levelNum;
+    private final SpeedManager speedManager;
     private GameWorld world;
 
     private Skin uiSkin;
@@ -28,13 +27,15 @@ public class GameLevel {
 
     public GameLevel(int levelNum){
         this.levelNum = levelNum;
-        this.world = createWorldFromLayout("level" + levelNum + ".txt");
+        this.world = GameWorldParser.parse("level" + levelNum + ".txt");
         this.uiSkin = GameSkin.getSkin();
         this.runButton = createRunButton();
         this.reloadButton = createReloadButton();
         this.backButton = createBackButton();
         this.infoSection = new InfoSection();
         this.infoSection.setGameInfoSupplier(world);
+        this.speedManager = new SpeedManager();
+        this.world.setSpeedManager(speedManager);
     }
 
     public void addToStage(Stage stage){
@@ -43,6 +44,8 @@ public class GameLevel {
         stage.addActor(world);
         stage.addActor(infoSection);
         stage.addActor(backButton);
+        stage.addActor(speedManager);
+        speedManager.addChildrenActors(stage);
     }
 
     public void setBackCallback(ILevelSelector levelSelector){
@@ -116,35 +119,7 @@ public class GameLevel {
         return button2;
     }
 
-    private GameWorld createWorldFromLayout(String layoutPath) {
-        FileHandle levelLayout = Gdx.files.internal(layoutPath);
-        BufferedReader reader = new BufferedReader(levelLayout.reader());
-        String line;
-        GameWorld world = null;
-        try{
-            while((line = reader.readLine())!=null){
-                String[] lineSpl = line.split(",");
-                if(world == null){
-                    world = new GameWorld(Integer.parseInt(lineSpl[0]), Integer.parseInt(lineSpl[1]));
-                }else{
-                    int row = Integer.parseInt(lineSpl[0]);
-                    int col = Integer.parseInt(lineSpl[1]);
-                    if(lineSpl[2].equals("X")){
-                        world.populateCell(row, col, ECellType.BLOCKER, null);
-                    }else{
-                        int colR = Integer.parseInt(lineSpl[2]);
-                        int colG = Integer.parseInt(lineSpl[3]);
-                        int colB = Integer.parseInt(lineSpl[4]);
-                        world.populateCell(row, col, ECellType.GAME_UNIT, new GameUnit(colR, colG, colB));
-                    }
-                }
-            }
-        }catch (Exception e){
-            System.out.println("shit");
-        }
 
-        return world;
-    }
 
     public GameWorld getWorld(){
         return world;

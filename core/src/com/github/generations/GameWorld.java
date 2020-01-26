@@ -18,13 +18,13 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
     private final int rows;
     private GameUnit[][] units;
     private ECellType[][] cellTypeMapping;
-    private static final float GENERATION_LIFESPAN = 0.01f;
     private static final int CELL_SIZE = 30;
     private static final double SICKNESS_SDV_LIMIT = 0.1;
     private boolean running = false;
     private Texture cellTexture;
     private int totalScore = 0;
     public static final int LAST_GENERATION = 1000;
+    private ISpeedManager speedManager;
 
 
     public GameWorld(int rows, int cols){
@@ -131,9 +131,10 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
             currentGeneration = LAST_GENERATION;
         }
         if(running && currentGeneration<LAST_GENERATION) {
+            double generationLifespan = (speedManager.getSpeed()==0) ? 0.1 : 0.1 / speedManager.getSpeed();
             float timeSinceCurrGen = this.timeInCurrentGen + dt;
-            int newGeneration = this.currentGeneration + (int) (timeSinceCurrGen / GENERATION_LIFESPAN);
-            this.timeInCurrentGen = timeSinceCurrGen % GENERATION_LIFESPAN;
+            int newGeneration = this.currentGeneration + (int) (timeSinceCurrGen / generationLifespan);
+            this.timeInCurrentGen = timeSinceCurrGen % (float)generationLifespan;
 
             if (newGeneration > currentGeneration) {
                 for (int i = 0; i < (newGeneration - currentGeneration); i++) {
@@ -231,5 +232,9 @@ public class GameWorld extends Actor implements IGameInfoSupplier {
             }
         }
         return neighbors;
+    }
+
+    public void setSpeedManager(ISpeedManager speedManager) {
+       this.speedManager = speedManager;
     }
 }
